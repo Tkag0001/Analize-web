@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script src = "http://unkpg.com/read-exxcel-file@4.x/bundle/read-excel-file"></script>
 </head>
 <body>
     <div>HTML</div>
@@ -12,8 +13,15 @@
         <label for="myfile" style="display: block;"> Test git </label>
         <div></div>
         <input type="file" id="myfile" name="myfile" accept=".csv,.xls,.xlsx">
-        <br> 3.am </br>
-      </form>
-
+        <div></div>
+    </form>
+    <script>
+        var input = document.getElementById("myfile");
+        input.addEventListener('change',function(){
+            readXlsxFile(input.files[0]).then(function(){
+                console.log(data);
+            })
+        })
+    </script>
 </body>
 </html>
