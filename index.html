@@ -1,19 +1,324 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<meta charset="utf-8">
+<title>Untitled Document</title>
+<style>
+	#myChart{
+		width:100%; 
+		max-width:600px; 
+		height:500px;
+		margin: 0px auto;
+		}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.13.5/xlsx.full.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.13.5/jszip.js"></script>
+
 </head>
+
 <body>
-    <div>HTML</div>
-    <form>
-        <label for="myfile" style="display: block;"> Test git </label>
-        <div></div>
-        <input type="file" id="myfile" name="myfile" accept=".csv,.xls,.xlsx">
-        <br> 3.am </br>
-      </form>
+	<input type="file" id="fileUpload" />
+<input type="button" id="upload" value="Upload" onclick="UploadProcess()" />
+<br/>
+
+<div id="ExcelTable"></div>
+	<fieldset>
+		<legend>Chart types</legend> 
+		<input type="radio" name="charttype" id="pie" value="pie" checked>Pie
+		<input type="radio" name="charttype" id="line" value="line">Line
+		<input type="radio" name="charttype" id="bar" value="bar">Bar
+	</fieldset>
+  	<button onClick= drawAllChart()>Draw Chart</button>
+<div id="myChart"></div>
+
+<script type="text/javascript">
+		var arrColumns = ["(0->1]","(1->2]","(2->3]","(3->4]","(4->5]","(5->6]","(6->7]","(7->8]","(8->9]","(9->10]"];
+    var arrValues=[];
+	var nChart;
+    function UploadProcess() {
+        //Reference the FileUpload element.
+        var fileUpload = document.getElementById("fileUpload");
+ 
+        //Validate whether File is valid Excel file.
+        var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+        if (regex.test(fileUpload.value.toLowerCase())) {
+            if (typeof (FileReader) != "undefined") {
+                var reader = new FileReader();
+ 
+                //For Browsers other than IE.
+                if (reader.readAsBinaryString) {
+                    reader.onload = function (e) {
+                        GetTableFromExcel(e.target.result);
+                    };
+                    reader.readAsBinaryString(fileUpload.files[0]);
+                } else {
+                    //For IE Browser.
+                    reader.onload = function (e) {
+                        var data = "";
+                        var bytes = new Uint8Array(e.target.result);
+                        for (var i = 0; i < bytes.byteLength; i++) {
+                            data += String.fromCharCode(bytes[i]);
+                        }
+                        GetTableFromExcel(data);
+                    };
+                    reader.readAsArrayBuffer(fileUpload.files[0]);
+                }
+            } else {
+                alert("This browser does not support HTML5.");
+            }
+        } else {
+            alert("Please upload a valid Excel file.");
+        }
+    };
+    function GetTableFromExcel(data) {
+        //Read the Excel File data in binary
+        var workbook = XLSX.read(data, {
+            type: 'binary'
+        });
+ 
+        //get the name of First Sheet.
+        var Sheet = workbook.SheetNames[0];
+ 
+        //Read all rows from First Sheet into an JSON array.
+        var excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[Sheet]);
+ 
+        //Create a HTML Table element.
+        var myTable  = document.createElement("table");
+        myTable.border = "1";
+ 
+        //Add the header row.
+        var row = myTable.insertRow(-1);
+ 
+        //Add the header cells.
+/*         var headerCell = document.createElement("TH");
+        headerCell.innerHTML = "(0->1]";
+        row.appendChild(headerCell);
+         
+        headerCell = document.createElement("TH");
+        headerCell.innerHTML = "(1->2]";
+        row.appendChild(headerCell);
+         
+        headerCell = document.createElement("TH");
+        headerCell.innerHTML = "(2->3]";
+        row.appendChild(headerCell);
+        
+        headerCell = document.createElement("TH");
+        headerCell.innerHTML = "(3->4]";
+        row.appendChild(headerCell);
+        
+        headerCell = document.createElement("TH");
+        headerCell.innerHTML = "(4->5]";
+        row.appendChild(headerCell);
+         
+        headerCell = document.createElement("TH");
+        headerCell.innerHTML = "(5->6]";
+        row.appendChild(headerCell);
+        
+        headerCell = document.createElement("TH");
+        headerCell.innerHTML = "(6->7]";
+        row.appendChild(headerCell);         
+        
+        headerCell = document.createElement("TH");
+        headerCell.innerHTML = "(7->8]";
+        row.appendChild(headerCell);
+         
+                 headerCell = document.createElement("TH");
+        headerCell.innerHTML = "(8->9]";
+        row.appendChild(headerCell);
+        
+        headerCell = document.createElement("TH");
+        headerCell.innerHTML = "(9->10]";
+        row.appendChild(headerCell); */
+        //Add the data rows from Excel file.
+        arrColumns.forEach(name =>{
+        		headerCell = document.createElement("TH");
+        		headerCell.innerHTML = name;
+        		row.appendChild(headerCell);
+        });
+        nChart = excelRows.length
+        for (var i = 0; i < nChart; i++) {
+            //Add the data row.
+
+			//Append div chart
+			let div = document.createElement('div')
+			div.id = 'myChart' + i;
+			document.getElementById('myChart').appendChild(div);
+
+            var row = myTable.insertRow(-1);
+			arrValues[i] = [];
+            //Add the data cells.
+            var cell = row.insertCell(-1);
+            cell.innerHTML = excelRows[i]._0_1;
+ 						console.log(typeof excelRows[i]._0_1)
+            arrValues[i].push(parseInt(excelRows[i]._0_1))
+            
+            cell = row.insertCell(-1);
+            cell.innerHTML = excelRows[i]._1_2;
+            arrValues[i].push(parseInt(excelRows[i]._1_2))
+            
+ 
+            cell = row.insertCell(-1);
+            cell.innerHTML = excelRows[i]._2_3;
+            arrValues[i].push(parseInt(excelRows[i]._2_3))
+                        
+            cell = row.insertCell(-1);
+            cell.innerHTML = excelRows[i]._3_4;
+            arrValues[i].push(parseInt(excelRows[i]._3_4))
+            
+            cell = row.insertCell(-1);
+            cell.innerHTML = excelRows[i]._4_5;
+            arrValues[i].push(parseInt(excelRows[i]._4_5))
+           
+            cell = row.insertCell(-1);
+            cell.innerHTML = excelRows[i]._5_6;
+            arrValues[i].push(parseInt(excelRows[i]._5_6))
+            
+            cell = row.insertCell(-1);
+            cell.innerHTML = excelRows[i]._6_7;
+            arrValues[i].push(parseInt(excelRows[i]._6_7))
+            
+            cell = row.insertCell(-1);
+            cell.innerHTML = excelRows[i]._7_8;
+            arrValues[i].push(parseInt(excelRows[i]._7_8))
+						
+			cell = row.insertCell(-1);
+            cell.innerHTML = excelRows[i]._8_9;            
+            arrValues[i].push(parseInt(excelRows[i]._8_9))
+            
+            cell = row.insertCell(-1);
+            cell.innerHTML = excelRows[i]._9_10;
+            arrValues[i].push(parseInt(excelRows[i]._9_10))
+		}
+        
+ 
+        var ExcelTable = document.getElementById("ExcelTable");
+        ExcelTable.innerHTML = "";
+        ExcelTable.appendChild(myTable);
+    };
+		
+    //merge teacher's code
+		function drawAllChart(){
+			for(var i =0;i<nChart;i++){
+				drawChart(arrColumns,arrValues[i],i);
+			}
+		}
+
+    	function drawChart(columns,values,id){
+		arrTitle=columns;
+		arrValue = values;
+		console.log(arrTitle);
+    	console.log(arrValue);
+		var dataDraw;
+		Draw(id);
+		function Draw(id){
+			/* arrTitle = document.getElementById("txtTitle").value.split(",");
+			arrValue = document.getElementById("txtValue").value.split(","); */
+	        var type = $("input[name='charttype']:checked").val();
+            if(type == "pie"){
+                drawPie(id);
+            }
+			else if(type =="line"){
+				drawLine(id);
+			}
+			else{
+				drawBar(id);
+			}
+		}
+		function drawPie(id){	
+			google.charts.load('current', {'packages':['corechart']});
+			google.charts.setOnLoadCallback(draw_pie(id));		
+		}
+		function draw_pie(id) {
+			//Set Data
+			var dataDraw = new google.visualization.DataTable();
+      		dataDraw.addColumn('string','Title');
+			dataDraw.addColumn('number','Value');
+			let i;
+			for(i = 0; i<arrValue.length; i++)
+			{
+				var arr =[];
+				arr[0]=arrTitle[i];
+				arr[1]=Number(arrValue[i]);
+				dataDraw.addRows([arr]);	
+			}
+			// Set Options
+			const options = {
+			title:'Kết quả học tập',
+			is3D: true
+			};
+			// Draw
+			const chart = new google.visualization.PieChart(document.getElementById('myChart'+id));
+			chart.draw(dataDraw, options);
+	  	}
+	function drawLine(id){
+		google.charts.load('current', {'packages':['corechart']});
+		google.charts.setOnLoadCallback(draw_line(id));		
+	}
+	function draw_line(id) {
+
+		//Set Data
+		var dataDraw = new google.visualization.DataTable();
+      		dataDraw.addColumn('string','Title');
+			dataDraw.addColumn('number','Value');
+			let i;
+			for(i = 0; i<arrValue.length; i++)
+			{
+				var arr =[];
+				arr[0]=arrTitle[i];
+				arr[1]=Number(arrValue[i]);
+				dataDraw.addRows([arr]);	
+			}
+			// Set Options
+			
+
+			var options = {
+			chart: {
+				title: 'Box Office Earnings in First Two Weeks of Opening',
+				subtitle: 'in millions of dollars (USD)'
+			},
+			width: 600,
+			height: 500
+			};
+
+			const chart = new google.visualization.LineChart(document.getElementById('myChart'+id));
+			chart.draw(dataDraw, options);
+	}
+	function drawBar(id)
+	{
+		google.charts.load('current', {'packages':['corechart']});
+		google.charts.setOnLoadCallback(draw_bar(id));
+	}
+	function draw_bar(id) {
+		//Set Data
+		var dataDraw = new google.visualization.DataTable();		
+			dataDraw.addColumn('string','Title');
+			dataDraw.addColumn('number','Value');
+			let i;
+			for(i = 0; i<arrValue.length; i++)
+			{
+				var arr =[];
+				arr[0]=arrTitle[i];
+				arr[1] = Number(arrValue[i]);
+				dataDraw.addRows([arr]);	
+			}
+			// Set Options
+		var options = {
+		chart: {
+			title: 'Kết quả học tập',
+			subtitle: 'Theo điểm'
+		},
+		width: 600,
+		height: 500
+		};
+		const chart = new google.visualization.BarChart(document.getElementById('myChart'+id));
+		chart.draw(dataDraw, options);
+	}
+}
+
+
+</script>
 
 </body>
 </html>
