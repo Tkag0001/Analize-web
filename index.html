@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+	<script src="https://www.gstatic.com/charts/loader.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     <script type ="text/javascript" src="./readJsonFile.js" defer></script>
 
@@ -16,7 +18,7 @@
     <button id="btSaveJsonF">Save File JSON</button><br>
     <textarea id="json-textarea" rows="10" cols="50"></textarea>
 
-    <div id="display_data"></div>
+    <div id="display_data" style="width:100%; max-width:600px; height:500px;"></div>
 
     <script>
         // var skipped_row = 4;
